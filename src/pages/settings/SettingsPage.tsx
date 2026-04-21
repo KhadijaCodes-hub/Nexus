@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, Lock, Bell, Globe, Palette, CreditCard } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -6,10 +6,36 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 export const SettingsPage: React.FC = () => {
   const { user } = useAuth();
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
   
+  const handleEnable2FA = async () => {
+    try {
+      await api.post('/auth/send-otp');
+      setShowOTPModal(true);
+    } catch (error) {
+      console.error('Failed to send OTP', error);
+      alert('Failed to send OTP.');
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+      await api.post('/auth/verify-otp', { otp: otpInput });
+      setTwoFactorEnabled(true);
+      setShowOTPModal(false);
+      setOtpInput('');
+    } catch (error) {
+      console.error('Failed to verify OTP', error);
+      alert('Invalid OTP');
+    }
+  };
+
   if (!user) return null;
   
   return (
@@ -137,10 +163,33 @@ export const SettingsPage: React.FC = () => {
                     <p className="text-sm text-gray-600">
                       Add an extra layer of security to your account
                     </p>
-                    <Badge variant="error" className="mt-1">Not Enabled</Badge>
+                    {twoFactorEnabled ? (
+                      <Badge variant="success" className="mt-1 bg-green-100 text-green-800">Enabled</Badge>
+                    ) : (
+                      <Badge variant="error" className="mt-1">Not Enabled</Badge>
+                    )}
                   </div>
-                  <Button variant="outline">Enable</Button>
+                  {!twoFactorEnabled && (
+                    <Button variant="outline" onClick={handleEnable2FA} disabled={showOTPModal}>
+                      {showOTPModal ? 'Sending...' : 'Enable'}
+                    </Button>
+                  )}
                 </div>
+                
+                {showOTPModal && (
+                  <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50 flex gap-3 items-end">
+                    <div className="flex-1">
+                      <Input 
+                        label="Enter OTP from email/console" 
+                        value={otpInput}
+                        onChange={(e) => setOtpInput(e.target.value)}
+                        placeholder="123456"
+                      />
+                    </div>
+                    <Button onClick={handleVerifyOTP}>Verify</Button>
+                    <Button variant="outline" onClick={() => setShowOTPModal(false)}>Cancel</Button>
+                  </div>
+                )}
               </div>
               
               <div className="pt-6 border-t border-gray-200">
