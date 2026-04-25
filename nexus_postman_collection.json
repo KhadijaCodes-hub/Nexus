@@ -1,0 +1,523 @@
+{
+  "info": {
+    "name": "Nexus Platform API",
+    "description": "API Documentation for Nexus Platform routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"entrepreneur\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": [
+            {
+              "name": "Successful Registration",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"user\": {\n    \"id\": \"60d0fe4f5311236168a109ca\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"entrepreneur\"\n  },\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": [
+            {
+              "name": "Successful Login",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"user\": {\n    \"id\": \"60d0fe4f5311236168a109ca\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"entrepreneur\"\n  },\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send OTP (Mock 2FA)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/send-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "send-otp"]
+            }
+          },
+          "response": [
+            {
+              "name": "OTP Sent",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"OTP sent successfully to email (check console)\",\n  \"mockup_otp\": \"123456\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          },
+          "response": [
+            {
+              "name": "Verification Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"2FA Verification successful\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          },
+          "response": [
+            {
+              "name": "Get Profile Data",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": \"60d0fe4f5311236168a109ca\",\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"role\": \"entrepreneur\",\n  \"bio\": \"Passionate builder from NY\",\n  \"fundingNeeded\": \"$500k\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Updated bio\",\n  \"fundingNeeded\": \"$500k\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "profile"],
+              "variable": [{ "key": "id", "value": "YOUR_USER_ID" }]
+            }
+          },
+          "response": [
+            {
+              "name": "Profile Updated",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": \"60d0fe4f5311236168a109ca\",\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"bio\": \"Updated bio\",\n  \"fundingNeeded\": \"$500k\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Meetings",
+      "item": [
+        {
+          "name": "Get My Meetings",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/meetings",
+              "host": ["{{baseUrl}}"],
+              "path": ["meetings"]
+            }
+          },
+          "response": [
+            {
+              "name": "Meetings List",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"_id\": \"12345\",\n    \"title\": \"Initial Pitch\",\n    \"status\": \"pending\",\n    \"date\": \"2026-05-01T00:00:00.000Z\",\n    \"startTime\": \"14:00\",\n    \"endTime\": \"15:00\",\n    \"organizerId\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\"\n    }\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Schedule Meeting",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendeeId\": \"USER_ID_HERE\",\n  \"title\": \"Initial Pitch\",\n  \"description\": \"Discuss strategy\",\n  \"date\": \"2026-05-01\",\n  \"startTime\": \"14:00\",\n  \"endTime\": \"15:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meetings",
+              "host": ["{{baseUrl}}"],
+              "path": ["meetings"]
+            }
+          },
+          "response": [
+            {
+              "name": "Meeting Scheduled",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"_id\": \"65c3b9b4f0b2\",\n  \"organizerId\": \"USER_A_ID\",\n  \"attendeeId\": \"USER_B_ID\",\n  \"title\": \"Initial Pitch\",\n  \"date\": \"2026-05-01T00:00:00.000Z\",\n  \"meetingLink\": \"/chat/abcd123\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Meeting Status",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meetings/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["meetings", ":id", "status"],
+              "variable": [{ "key": "id", "value": "MEETING_ID_HERE" }]
+            }
+          },
+          "response": [
+            {
+              "name": "Meeting Status Updated",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"_id\": \"12345\",\n  \"title\": \"Initial Pitch\",\n  \"status\": \"accepted\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Get My Documents",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents"]
+            }
+          },
+          "response": [
+            {
+              "name": "Documents List",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": \"doc123\",\n    \"name\": \"contract.pdf\",\n    \"size\": \"256 KB\",\n    \"type\": \"PDF\",\n    \"fileUrl\": \"/uploads/123-contract.pdf\",\n    \"status\": \"Pending\",\n    \"signatureData\": null\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Upload Document",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "upload"]
+            }
+          },
+          "response": [
+            {
+              "name": "File Uploaded",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Document uploaded successfully\",\n  \"document\": {\n    \"name\": \"contract.pdf\",\n    \"fileUrl\": \"/uploads/162817291-contract.pdf\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sign Document",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"signatureData\": \"data:image/png;base64,...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents/:id/sign",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", ":id", "sign"],
+              "variable": [{ "key": "id", "value": "DOCUMENT_ID_HERE" }]
+            }
+          },
+          "response": [
+            {
+              "name": "Document Signed",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Document signed successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/documents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", ":id"],
+              "variable": [{ "key": "id", "value": "DOCUMENT_ID_HERE" }]
+            }
+          },
+          "response": [
+            {
+              "name": "Document Deleted",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Document removed\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Transactions",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "transactions"]
+            }
+          },
+          "response": [
+            {
+              "name": "Transaction List",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"balance\": 5000,\n  \"transactions\": [\n    {\n      \"_id\": \"txn123\",\n      \"type\": \"deposit\",\n      \"amount\": 5000,\n      \"status\": \"Completed\",\n      \"description\": \"Deposit via Credit Card\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Deposit Funds",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"paymentMethod\": \"Credit Card\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/deposit",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "deposit"]
+            }
+          },
+          "response": [
+            {
+              "name": "Deposit Successful",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Deposit successful\",\n  \"transaction\": {\n    \"type\": \"deposit\",\n    \"amount\": 5000,\n    \"status\": \"Completed\"\n  },\n  \"clientSecret\": \"pi_3Mtw...\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Withdraw Funds",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"bankAccountInfo\": \"Bank Acc ***123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/withdraw",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "withdraw"]
+            }
+          },
+          "response": [
+            {
+              "name": "Withdraw Successful",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Withdraw successful\",\n  \"transaction\": {\n    \"type\": \"withdraw\",\n    \"amount\": 1000,\n    \"status\": \"Completed\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Transfer Funds",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500,\n  \"recipientId\": \"RECIPIENT_USER_ID_HERE\",\n  \"description\": \"Tranche 1 Investment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/transfer",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "transfer"]
+            }
+          },
+          "response": [
+            {
+              "name": "Transfer Successful",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Transfer successful\",\n  \"transaction\": {\n    \"type\": \"transfer\",\n    \"amount\": 500,\n    \"status\": \"Completed\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
